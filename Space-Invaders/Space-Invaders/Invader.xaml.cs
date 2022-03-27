@@ -96,7 +96,22 @@ namespace Space_Invaders
             _holder.Children.Remove(this);
             GameWindow.Invaders[rowPosition].Remove(this);
 
+            if (GameWindow.ShootingAliens.Contains(this))
+            {
+                GameWindow.ShootingAliens.Remove(this);
+                try
+                {
+                    GameWindow.ShootingAliens.Add(GameWindow.Invaders[rowPosition - 1][columnPosition]);
+                }
+                catch (Exception _) { }
+            }
+
             GameWindow.Score += 100;
+        }
+
+        public void Shoot()
+        {
+            _holder.Children.Add(new Bullet(20, 100, this));
         }
     }
 }

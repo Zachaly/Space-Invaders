@@ -8,8 +8,6 @@
     <UserControl.Resources>
         <Image x:Key="Invader-1" Source="/Space-Invaders;component/Resources/Invader-1.png" Stretch="Fill"/>
     </UserControl.Resources>
-    
-    <Label Content="{StaticResource Invader-1}">
-        
-    </Label>
+
+    <Label Content="{StaticResource Invader-1}"/>
 </UserControl>

@@ -42,7 +42,7 @@ namespace Space_Invaders
             _moveLength = moveLength;
             positionHelper = new PositionHelper(this);
 
-            positionHelper.PositionX = Canvas.GetLeft(shooter) + shooter.ActualWidth/2;
+            positionHelper.PositionX = Canvas.GetLeft(shooter) + shooter.ActualWidth / 2;
 
             if (shooter is Player)
             {
@@ -51,7 +51,7 @@ namespace Space_Invaders
                 isPlayer = true;
             }
             else
-                positionHelper.PositionY = Canvas.GetBottom(shooter);
+                positionHelper.PositionY = Canvas.GetTop(shooter);
 
 
             moveTimer = new DispatcherTimer();
@@ -68,11 +68,12 @@ namespace Space_Invaders
             positionHelper.PositionY += _moveLength;
             if(isPlayer)
                 PlayerBulletDetectCollisions();
+            else
+                InvaderBulletDetectCollisions();
 
-            if(positionHelper.PositionY < 0)
+            if(positionHelper.PositionY < 0 || positionHelper.PositionY > Canvas.GetBottom(GameWindow.Player))
             {
-                moveTimer.Stop();
-                positionHelper.MainCanvas.Children.Remove(this);
+                DeleteBullet();
             }
         }
 
@@ -87,8 +88,7 @@ namespace Space_Invaders
                     rect1.Intersect(rect2);
                     if (!rect1.IsEmpty)
                     {
-                        positionHelper.MainCanvas.Children.Remove(this);
-                        moveTimer.Stop();
+                        DeleteBullet();
                         invader.Die();
                         return;
                     }
@@ -101,12 +101,47 @@ namespace Space_Invaders
                 rect1.Intersect(rect2);
 
                 if (!rect1.IsEmpty) 
-                { 
-                    positionHelper.MainCanvas.Children.Remove(this);
-                    moveTimer.Stop();
+                {
+                    DeleteBullet();
                     return;
                 }
             }
+        }
+
+        void InvaderBulletDetectCollisions()
+        {
+            var rect1 = new Rect(positionHelper.PositionX, positionHelper.PositionY, ActualWidth, ActualHeight);
+            var rect2 = new Rect(Canvas.GetLeft(GameWindow.Player), Canvas.GetTop(GameWindow.Player),
+                GameWindow.Player.ActualWidth, GameWindow.Player.ActualHeight);
+
+            rect1.Intersect(rect2);
+
+            if (!rect1.IsEmpty)
+            {
+                GameWindow.Player.GetHit();
+                DeleteBullet();
+                return;
+            }
+
+            foreach (var shield in GameWindow.Shields)
+            {
+                rect1 = new Rect(positionHelper.PositionX, positionHelper.PositionY, ActualWidth, ActualHeight);
+                rect2 = new Rect(Canvas.GetLeft(shield), Canvas.GetTop(shield), shield.ActualWidth, shield.ActualHeight);
+                rect1.Intersect(rect2);
+
+                if (!rect1.IsEmpty)
+                {
+                    shield.GetHit();
+                    DeleteBullet();
+                    return;
+                }
+            }
+        }
+
+        void DeleteBullet()
+        {
+            positionHelper.MainCanvas.Children.Remove(this);
+            moveTimer.Stop();
         }
     }
 }

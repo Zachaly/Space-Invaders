@@ -51,7 +51,7 @@ namespace Space_Invaders
             {
                 return;
             }
-            positionHelper.MainCanvas.Children.Add(new Bullet(-15, 250, this));
+            positionHelper.MainCanvas.Children.Add(new Bullet(-15, 50, this));
             lastShot = DateTime.Now;
         }
 
@@ -63,6 +63,11 @@ namespace Space_Invaders
                 MoveRight();
             else if (key == Key.Up)
                 Shot();
+        }
+
+        public void GetHit()
+        {
+            (App.Current.MainWindow as MainWindow).HealthBar.RemoveHP();
         }
     }
 }

@@ -5,5 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Space_Invaders"
              mc:Ignorable="d">
-    <Label x:Name="ContentLabel" Background="DarkGray" Width="150" Height="40" BorderBrush="Gray" BorderThickness="3"/>
+    <Label x:Name="ContentLabel" Background="DarkGray" Width="150" Height="40" BorderBrush="Gray" BorderThickness="3"
+            HorizontalContentAlignment="Center" FontSize="20" VerticalContentAlignment="Center" FontFamily="Arial"/>
 </UserControl>

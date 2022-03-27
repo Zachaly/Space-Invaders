@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Space_Invaders"
         mc:Ignorable="d"
-        Title="Space Invaders" Height="500" Width="800" Background="#29292A">
+        Title="Space Invaders" Height="500" Width="800" Background="#29292A" ResizeMode="NoResize">
     <Canvas x:Name="MainCanvas">
         <Label x:Name="ScoreLabel" FontSize="20" Foreground="White"/>
         <Button Width="200" Height="100" FontSize="44" FontFamily="Arial" Background="DarkGray" 
             Click="Start" x:Name="StartButton" Canvas.Left="300" Canvas.Top="200" Content="START"/>
+        <local:HealthBar x:Name="HealthBar" Visibility="Hidden"/>
     </Canvas>
 </Window>

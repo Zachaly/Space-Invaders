@@ -28,8 +28,11 @@ namespace Space_Invaders
             {
                 _hitPoints = value;
                 ContentLabel.Content = value.ToString();
-                if( value <= 0)
+                if (value <= 0)
+                {
                     _holder.Children.Remove(this);
+                    (App.Current.MainWindow as MainWindow).Shields.Remove(this);
+                }
             }
         }
 
