@@ -20,6 +20,11 @@ namespace Space_Invaders
     /// </summary>
     public partial class Invader : UserControl
     {
+        MainWindow GameWindow
+        {
+            get => App.Current.MainWindow as MainWindow;
+        }
+
         double PositionX 
         { 
             get => Canvas.GetLeft(this); 
@@ -53,25 +58,52 @@ namespace Space_Invaders
             PositionY = 80 + (Height + 20) * row;
         }
 
-        public void MoveLeft(int length)
+        void MoveLeft(int length)
         {
-            PositionX += length;
+            
+            if (PositionX <= 80)
+            {
+                GameWindow.Direction = Direction.Right;
+                foreach(var row in GameWindow.Invaders)
+                    foreach(var invader in row)
+                        invader.MoveDown();
+                return;
+            }
+            
+            PositionX -= length;
         }
 
-        public void MoveRight(int lenght)
+        void MoveRight(int lenght)
         {
-            PositionX -= lenght;
+
+            if (GameWindow.Width - PositionX <= 80)
+            {
+                GameWindow.Direction = Direction.Left;
+                return;
+            }
+
+            PositionX += lenght;
         }
 
-        public void MoveDown()
+        void MoveDown()
         {
             PositionY += 10;
+        }
+
+        public void Move()
+        {
+            if(GameWindow.Direction == Direction.Left)
+                MoveLeft(10);
+            else if(GameWindow.Direction == Direction.Right)
+                MoveRight(10);
         }
 
         public void Die()
         {
             _holder.Children.Remove(this);
-            MainWindow.Invaders[rowPosition].Remove(this);
+            GameWindow.Invaders[rowPosition].Remove(this);
+
+            GameWindow.Score += 100;
         }
     }
 }

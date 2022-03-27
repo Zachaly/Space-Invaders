@@ -12,16 +12,38 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Space_Invaders
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    
+    public enum Direction
+    {
+        Left, Right
+    }
+
     public partial class MainWindow : Window
     {
-        public static List<List<Invader>> Invaders = new List<List<Invader>>();
+        int _score = 0;
+        public List<List<Invader>> Invaders = new List<List<Invader>>();
         List<Shield> shields = new List<Shield>();
+        DispatcherTimer MoveTimer;
+        Player player;
+
+        public Direction Direction { get; set; }
+
+        public int Score
+        {
+            get => _score;
+            set
+            {
+                _score = value;
+                ScoreLabel.Content = $"Score: {_score}";
+            }
+        }
 
         public MainWindow()
         {
@@ -30,7 +52,7 @@ namespace Space_Invaders
 
         private void Start(object sender, RoutedEventArgs e)
         {
-            MainCanvas.Children.Clear();
+            MainCanvas.Children.Remove(StartButton);
             Invaders.Clear();
             for(int i = 0; i < 5; i++)
             {
@@ -46,8 +68,28 @@ namespace Space_Invaders
             shields.Add(new Shield(MainCanvas, 400, 700));
             shields.Add(new Shield(MainCanvas, 700, 700));
 
-            Height = 800;
-            Width = 850;
+            Height = 1000;
+            Width = 1000;
+
+            Score = 0;
+
+            player = new Player();
+            Canvas.SetLeft(player, 450);
+            Canvas.SetTop(player, 800);
+            MainCanvas.Children.Add(player);
+            KeyDown += (s, e) => player.KeyPressed(e.Key);
+
+            Direction = Direction.Right;
+            MoveTimer = new DispatcherTimer();
+            MoveTimer.Tick += (_, __) =>
+            {
+                foreach (var row in Invaders)
+                    foreach (var item in row)
+                        item.Move();
+            };
+            MoveTimer.Interval = new TimeSpan(0, 0, 0, 0, 200);
+
+            MoveTimer.Start();
         }
     }
 }
