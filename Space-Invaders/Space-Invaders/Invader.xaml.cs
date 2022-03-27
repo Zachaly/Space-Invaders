@@ -25,16 +25,7 @@ namespace Space_Invaders
             get => App.Current.MainWindow as MainWindow;
         }
 
-        double PositionX 
-        { 
-            get => Canvas.GetLeft(this); 
-            set => Canvas.SetLeft(this, value); 
-        }
-        double PositionY 
-        { 
-            get => Canvas.GetTop(this);
-            set => Canvas.SetTop(this, value);
-        }
+        PositionHelper positionHelper;
 
         int rowPosition, columnPosition;
 
@@ -54,14 +45,16 @@ namespace Space_Invaders
             rowPosition = row;
             columnPosition = column;
 
-            PositionX = 80 + (Width + 20) * column;
-            PositionY = 80 + (Height + 20) * row;
+            positionHelper = new PositionHelper(this);
+
+            positionHelper.PositionX = 80 + (Width + 20) * column;
+            positionHelper.PositionY = 80 + (Height + 20) * row;
         }
 
         void MoveLeft(int length)
         {
             
-            if (PositionX <= 80)
+            if (positionHelper.PositionX <= 80)
             {
                 GameWindow.Direction = Direction.Right;
                 foreach(var row in GameWindow.Invaders)
@@ -69,25 +62,25 @@ namespace Space_Invaders
                         invader.MoveDown();
                 return;
             }
-            
-            PositionX -= length;
+
+            positionHelper.PositionX -= length;
         }
 
         void MoveRight(int lenght)
         {
 
-            if (GameWindow.Width - PositionX <= 80)
+            if (GameWindow.Width - positionHelper.PositionX <= 80)
             {
                 GameWindow.Direction = Direction.Left;
                 return;
             }
 
-            PositionX += lenght;
+            positionHelper.PositionX += lenght;
         }
 
         void MoveDown()
         {
-            PositionY += 10;
+            positionHelper.PositionY += 10;
         }
 
         public void Move()

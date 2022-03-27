@@ -20,25 +20,39 @@ namespace Space_Invaders
     /// </summary>
     public partial class Player : UserControl
     {
-        double PositionX
+        PositionHelper positionHelper;
+        DateTime lastShot;
+
+        double timeFromLastShot
         {
-            get => Canvas.GetLeft(this);
-            set => Canvas.SetLeft(this, value);
+            get => (DateTime.Now - lastShot).TotalMilliseconds;
         }
+
 
         public Player()
         {
             InitializeComponent();
+            positionHelper = new PositionHelper(this);
         }
 
-        public void MoveLeft()
+        void MoveLeft()
         {
-            PositionX -= 10;
+            positionHelper.PositionX -= 10;
         }
 
-        public void MoveRight()
+        void MoveRight()
         {
-            PositionX += 10;
+            positionHelper.PositionX += 10;
+        }
+
+        void Shot()
+        {
+            if(timeFromLastShot < 1000)
+            {
+                return;
+            }
+            positionHelper.MainCanvas.Children.Add(new Bullet(-15, 250, this));
+            lastShot = DateTime.Now;
         }
 
         public void KeyPressed(Key key)
@@ -47,6 +61,8 @@ namespace Space_Invaders
                 MoveLeft();
             else if (key == Key.Right)
                 MoveRight();
+            else if (key == Key.Up)
+                Shot();
         }
     }
 }

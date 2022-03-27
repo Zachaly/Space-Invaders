@@ -49,5 +49,10 @@ namespace Space_Invaders
             Canvas.SetTop(this, positionY);
             Canvas.SetLeft(this, positionX);
         }
+
+        public void GetHit()
+        {
+            HitPoints--;
+        }
     }
 }

@@ -29,11 +29,17 @@ namespace Space_Invaders
     {
         int _score = 0;
         public List<List<Invader>> Invaders = new List<List<Invader>>();
-        List<Shield> shields = new List<Shield>();
+        public List<Shield> Shields = new List<Shield>();
         DispatcherTimer MoveTimer;
         Player player;
 
         public Direction Direction { get; set; }
+
+        public int Speed
+        {
+            get => MoveTimer.Interval.Milliseconds;
+            set => MoveTimer.Interval = new TimeSpan(0, 0, 0, 0, value);
+        }
 
         public int Score
         {
@@ -64,9 +70,9 @@ namespace Space_Invaders
                 }
             }
 
-            shields.Add(new Shield(MainCanvas, 100, 700));
-            shields.Add(new Shield(MainCanvas, 400, 700));
-            shields.Add(new Shield(MainCanvas, 700, 700));
+            Shields.Add(new Shield(MainCanvas, 100, 700));
+            Shields.Add(new Shield(MainCanvas, 400, 700));
+            Shields.Add(new Shield(MainCanvas, 700, 700));
 
             Height = 1000;
             Width = 1000;
@@ -75,7 +81,7 @@ namespace Space_Invaders
 
             player = new Player();
             Canvas.SetLeft(player, 450);
-            Canvas.SetTop(player, 800);
+            Canvas.SetTop(player, 850);
             MainCanvas.Children.Add(player);
             KeyDown += (s, e) => player.KeyPressed(e.Key);
 
@@ -84,8 +90,8 @@ namespace Space_Invaders
             MoveTimer.Tick += (_, __) =>
             {
                 foreach (var row in Invaders)
-                    foreach (var item in row)
-                        item.Move();
+                    foreach (var invader in row)
+                        invader.Move();
             };
             MoveTimer.Interval = new TimeSpan(0, 0, 0, 0, 200);
 
