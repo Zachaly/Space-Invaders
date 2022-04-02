@@ -1,25 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace Space_Invaders
-{
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    
+{ 
+    // move direction of enemies
     public enum Direction
     {
         Left, Right
@@ -27,21 +15,16 @@ namespace Space_Invaders
 
     public partial class MainWindow : Window
     {
-        int _score = 0;
-        public List<List<Invader>> Invaders = new List<List<Invader>>();
+        int _score = 0; // initial score
+        public List<List<Invader>> Invaders = new List<List<Invader>>(); // a matrix with enemies
         public List<Shield> Shields = new List<Shield>();
-        DispatcherTimer MoveTimer, ShootTimer;
-        public Player Player;
-        public List<Invader> ShootingAliens;
+        DispatcherTimer MoveTimer, ShootTimer; // different timers for enemies to move and shoot
+        public Player Player { get; set; }
+        public List<Invader> ShootingAliens { get; set; } // enemies that are first in their columns will shoot to the player
+        public Direction Direction { get; set; } // move direction of enemies 
+        const int MoveTime = 200; // miliseconds between enemy moves
 
-        public Direction Direction { get; set; }
-
-        public int Speed
-        {
-            get => MoveTimer.Interval.Milliseconds;
-            set => MoveTimer.Interval = new TimeSpan(0, 0, 0, 0, value);
-        }
-
+        // gamescore, updates the label with recent value
         public int Score
         {
             get => _score;
@@ -49,6 +32,19 @@ namespace Space_Invaders
             {
                 _score = value;
                 ScoreLabel.Content = $"Score: {_score}";
+            }
+        }
+
+        // checks if there are any enemies left
+        bool WaveClear
+        {
+            get 
+            {
+                foreach (var row in Invaders)
+                    if (row.Count > 0)
+                        return false;
+
+                return true;
             }
         }
 
@@ -61,14 +57,14 @@ namespace Space_Invaders
         {
             MainCanvas.Children.Remove(StartButton);
 
-            Shields.Add(new Shield(MainCanvas, 100, 700));
+            Shields.Add(new Shield(MainCanvas, 120, 700));
             Shields.Add(new Shield(MainCanvas, 400, 700));
-            Shields.Add(new Shield(MainCanvas, 700, 700));
+            Shields.Add(new Shield(MainCanvas, 680, 700));
 
             Height = 1000;
             Width = 1000;
 
-            Score = 0;
+            Score = 0; // sets value of the label with score
 
             Player = new Player();
             Canvas.SetLeft(Player, 450);
@@ -76,16 +72,18 @@ namespace Space_Invaders
             MainCanvas.Children.Add(Player);
             KeyDown += (s, e) => Player.KeyPressed(e.Key);
 
+            // sets healthbar in top right corner and makes it visible
             Canvas.SetTop(HealthBar, 0);
             Canvas.SetRight(HealthBar, 0);
             HealthBar.Visibility = Visibility.Visible;
 
-            MoveTimer = new DispatcherTimer();
-            GenerateAliens(200);
+            GenerateAliens(MoveTime);
         }
 
+        // generates a new wave
         void GenerateAliens(int moveTime)
         {
+            // adding invaders to game
             Invaders.Clear();
             for (int i = 0; i < 5; i++)
             {
@@ -93,33 +91,44 @@ namespace Space_Invaders
 
                 for (int j = 0; j < 10; j++)
                 {
-                    Invaders[i].Add(new Invader(MainCanvas, i, j));
+                    Invaders[i].Add(new Invader(i, j));
                 }
             }
 
+            // add lowest row to shooting enemies
             ShootingAliens = new List<Invader>();
             Invaders[4].ForEach(invader => ShootingAliens.Add(invader));
+
+            // enemy shooting
             ShootTimer = new DispatcherTimer();
             ShootTimer.Tick += (_, __) =>
             {
                 Invader shooter;
-                //Random random = new Random();
-                //shooter = ShootingAliens[random.Next(Invaders.Count)];
                 try
                 {
+                    // picks enemies that are at least on the X position as player
                     var leftSide = from el in ShootingAliens
                                    where Canvas.GetLeft(el) >= Canvas.GetLeft(Player) - 50
                                    select el;
 
+                    // picks enemy closect to the player
                     shooter = leftSide.First();
+
+                    foreach(var item in leftSide)
+                    {
+                        if(Canvas.GetLeft(item) < Canvas.GetLeft(shooter))
+                            shooter = item;
+                    }
                 }
                 catch (Exception ___) { return; }
 
                 shooter.Shoot();
             };
-            ShootTimer.Interval = new TimeSpan(0, 0, 0, 0, 750);
+            ShootTimer.Interval = new TimeSpan(0, 0, 0, 0, 1500);
 
+            // enemy movement
             Direction = Direction.Right;
+            MoveTimer = new DispatcherTimer();
             MoveTimer.Tick += (_, __) =>
             {
                 foreach (var row in Invaders)
@@ -132,11 +141,32 @@ namespace Space_Invaders
             ShootTimer.Start();
         }
 
+        // closes game when player dies
         public void GameOver()
         {
             MoveTimer.Stop();
-            ShootTimer?.Stop();
+            ShootTimer.Stop();
+
+            try
+            {
+                var bullets = (from UserControl el in MainCanvas.Children where el is Bullet select el).ToArray();
+                foreach(var bullet in bullets)
+                    MainCanvas.Children.Remove(bullet);
+            }
+            catch(Exception _) { }
+
             MessageBox.Show("Game over");
+            App.Current.Shutdown();
+        }
+
+        public void CheckWaveClear()
+        {
+            if (WaveClear)
+            {
+                MoveTimer.Stop();
+                ShootTimer.Stop();
+                GenerateAliens(MoveTime);
+            }
         }
     }
 }

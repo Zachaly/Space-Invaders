@@ -1,25 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Space_Invaders
 {
-    /// <summary>
-    /// Logika interakcji dla klasy Invader.xaml
-    /// </summary>
     public partial class Invader : UserControl
     {
+        // simple reference to main window
         MainWindow GameWindow
         {
             get => App.Current.MainWindow as MainWindow;
@@ -27,20 +14,17 @@ namespace Space_Invaders
 
         PositionHelper positionHelper;
 
-        int rowPosition, columnPosition;
-
-        Canvas _holder;
+        int rowPosition, columnPosition; // position od enemy in matrix
 
         public Invader()
         {
             InitializeComponent();
         }
 
-        public Invader(Canvas holder, int row, int column)
+        public Invader(int row, int column)
         {
             InitializeComponent();
-            _holder = holder;
-            _holder.Children.Add(this);
+            positionHelper.MainCanvas.Children.Add(this);
 
             rowPosition = row;
             columnPosition = column;
@@ -51,9 +35,9 @@ namespace Space_Invaders
             positionHelper.PositionY = 80 + (Height + 20) * row;
         }
 
+        // moves enemy left, moves down and changes direction when its too far left
         void MoveLeft(int length)
         {
-            
             if (positionHelper.PositionX <= 80)
             {
                 GameWindow.Direction = Direction.Right;
@@ -66,9 +50,9 @@ namespace Space_Invaders
             positionHelper.PositionX -= length;
         }
 
+        // moves enemy right, changes direction when its too far right
         void MoveRight(int lenght)
         {
-
             if (GameWindow.Width - positionHelper.PositionX <= 80)
             {
                 GameWindow.Direction = Direction.Left;
@@ -78,11 +62,15 @@ namespace Space_Invaders
             positionHelper.PositionX += lenght;
         }
 
+        // moves enemy down, ends the game if its too close to the player
         void MoveDown()
         {
             positionHelper.PositionY += 10;
+            if (positionHelper.PositionY >= Canvas.GetTop(GameWindow.Player))
+                GameWindow.GameOver();
         }
 
+        // makes enemy move
         public void Move()
         {
             if(GameWindow.Direction == Direction.Left)
@@ -91,9 +79,10 @@ namespace Space_Invaders
                 MoveRight(10);
         }
 
+        // enemy is removed from the game, score is increased
         public void Die()
         {
-            _holder.Children.Remove(this);
+            positionHelper.MainCanvas.Children.Remove(this);
             GameWindow.Invaders[rowPosition].Remove(this);
 
             if (GameWindow.ShootingAliens.Contains(this))
@@ -101,17 +90,36 @@ namespace Space_Invaders
                 GameWindow.ShootingAliens.Remove(this);
                 try
                 {
-                    GameWindow.ShootingAliens.Add(GameWindow.Invaders[rowPosition - 1][columnPosition]);
+                    GetNewShootingAlien(rowPosition);
                 }
                 catch (Exception _) { }
             }
 
             GameWindow.Score += 100;
+            GameWindow.CheckWaveClear();
         }
 
+        // enemy shoots
         public void Shoot()
         {
-            _holder.Children.Add(new Bullet(20, 100, this));
+            positionHelper.MainCanvas.Children.Add(new Bullet(20, 200, this));
+        }
+
+        // gets a new alien that will shoot in the same row
+        void GetNewShootingAlien(int row)
+        {
+            if (row < 1)
+                return;
+
+            try
+            {
+                var alien = (from el in GameWindow.Invaders[row - 1] where el.columnPosition == columnPosition select el).First();
+                GameWindow.ShootingAliens.Add(alien);
+            }
+            catch(Exception _) 
+            {
+                GetNewShootingAlien(row - 1);
+            }
         }
     }
 }

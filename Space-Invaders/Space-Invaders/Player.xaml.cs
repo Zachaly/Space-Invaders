@@ -1,33 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Space_Invaders
 {
-    /// <summary>
-    /// Logika interakcji dla klasy Player.xaml
-    /// </summary>
     public partial class Player : UserControl
     {
         PositionHelper positionHelper;
-        DateTime lastShot;
+        DateTime lastShot; // time when player shot last
 
+        // miliseconds from last shot
         double timeFromLastShot
         {
             get => (DateTime.Now - lastShot).TotalMilliseconds;
         }
-
 
         public Player()
         {
@@ -37,21 +23,22 @@ namespace Space_Invaders
 
         void MoveLeft()
         {
-            positionHelper.PositionX -= 10;
+            positionHelper.PositionX -= 15;
         }
 
         void MoveRight()
         {
-            positionHelper.PositionX += 10;
+            positionHelper.PositionX += 15;
         }
 
+        // player shoots a bullet if its not too early for next shot
         void Shot()
         {
             if(timeFromLastShot < 1000)
             {
                 return;
             }
-            positionHelper.MainCanvas.Children.Add(new Bullet(-15, 50, this));
+            positionHelper.MainCanvas.Children.Add(new Bullet(-15, 25, this));
             lastShot = DateTime.Now;
         }
 
@@ -65,6 +52,7 @@ namespace Space_Invaders
                 Shot();
         }
 
+        // Removes one heart
         public void GetHit()
         {
             (App.Current.MainWindow as MainWindow).HealthBar.RemoveHP();

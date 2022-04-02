@@ -1,26 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows.Controls;
 
 namespace Space_Invaders
 {
-    /// <summary>
-    /// Logika interakcji dla klasy Shield.xaml
-    /// </summary>
     public partial class Shield : UserControl
     {
         int _hitPoints;
+        // how many times shield can be hit, changes the value visible in game, removes shield when value is  0
         int HitPoints 
         { 
             get => _hitPoints;
@@ -36,7 +21,7 @@ namespace Space_Invaders
             }
         }
 
-        Canvas _holder;
+        Canvas _holder; // canvas containing the shield
 
         public Shield()
         {
@@ -53,6 +38,7 @@ namespace Space_Invaders
             Canvas.SetLeft(this, positionX);
         }
 
+        // removes a hitpoint
         public void GetHit()
         {
             HitPoints--;
